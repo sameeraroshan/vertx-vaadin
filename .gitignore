@@ -1,0 +1,25 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+
+
+/bin
+*/bin/*
+bin/*
+
+/target
+*/target/*
+target/*
+log/*
+/.classpath
+.classpath/*
+/*.classpath/*
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion
+
+*.iml
+
+## Directory-based project format:
+.idea/
+.vertx/
+file-uploads/
+static/
+webroot/
