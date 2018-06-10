@@ -1,7 +1,9 @@
 package com.example.demo;
 
+import com.hazelcast.config.Config;
 import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.EventBusOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
@@ -22,8 +24,17 @@ public abstract class DepoymenetVerticle extends AbstractVerticle {
     }
 
     protected void clusterEventBus() {
-        ClusterManager mgr = new HazelcastClusterManager();
-        VertxOptions options = new VertxOptions().setClusterManager(mgr);
+
+        Config config = new Config();
+        config.getNetworkConfig().getJoin().getMulticastConfig().addTrustedInterface("192.168.1.6");
+
+        ClusterManager clusterManager = new HazelcastClusterManager(config);
+        VertxOptions options = new VertxOptions();
+        options.setClusterManager(clusterManager);
+        options.setClusterHost("192.168.1.6");
+        options.setClustered(true);
+
+
         Vertx.clusteredVertx(options, res -> {
             if (res.succeeded()) {
                 Vertx vertx = res.result();
@@ -48,10 +59,10 @@ public abstract class DepoymenetVerticle extends AbstractVerticle {
 
     protected void deployVerticle() {
         vertx.deployVerticle(getVerticleClass().getName(), getDeploymentOptions());
-        System.out.println("Verticle "+getServiceName()+" deployed");
+        System.out.println("Verticle " + getServiceName() + " deployed");
     }
 
-    protected void createServiceDiscovery(){
+    protected void createServiceDiscovery() {
         discovery = ServiceDiscovery.create(vertx);
         record = MessageSource.createRecord(getServiceName(), getEventBusAddress());
         discovery.publish(record, ar -> {
