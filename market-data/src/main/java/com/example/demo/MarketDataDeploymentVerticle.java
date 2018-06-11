@@ -13,7 +13,7 @@ public class MarketDataDeploymentVerticle extends DepoymenetVerticle {
     }
 
     @Override
-    protected void deployVerticle(Vertx vertx) {
+    public void deployVerticle(Vertx vertx) {
         ConfigRetriever retriever = ConfigRetriever.create(vertx, getConfigurationOptions());
         retriever.getConfig(result -> {
             if (result.failed()) {

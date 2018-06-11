@@ -1,57 +1,18 @@
 package com.example.demo;
 
-import com.hazelcast.config.Config;
 import io.vertx.core.*;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.EventBusOptions;
-import io.vertx.core.impl.VertxInternal;
-import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
-import io.vertx.servicediscovery.types.EventBusService;
 import io.vertx.servicediscovery.types.MessageSource;
-import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-public abstract class DepoymenetVerticle extends AbstractVerticle {
+public abstract class DepoymenetVerticle extends AbstractVerticle implements HazelcastCluster {
     protected Record record;
     protected ServiceDiscovery discovery;
 
     @Override
     public final void start() {
         // Customize the configuration
-        clusterEventBus();
-    }
-
-   protected void clusterEventBus() {
-
-        //Config config = new Config();
-
-        try {
-            InetAddress ip=InetAddress.getLocalHost();
-           // config.getNetworkConfig().getJoin().getMulticastConfig().addTrustedInterface(ip.getHostAddress());
-            HazelcastClusterManager clusterManager = new HazelcastClusterManager();
-           // ClusterManager clusterManager = new HazelcastClusterManager(config);
-            VertxOptions options = new VertxOptions();
-            //options.setClusterHost(ip.getHostAddress());
-            options.setClusterManager(clusterManager);
-            options.setClustered(true);
-            Vertx.clusteredVertx(options, res -> {
-                if (res.succeeded()) {
-                    Vertx vertx = res.result();
-                    EventBus eventBus = vertx.eventBus();
-                    System.out.println("We now have a clustered event bus: " + eventBus);
-                    deployVerticle(vertx);
-                    createServiceDiscovery(vertx);
-                } else {
-                    System.out.println("Failed: " + res.cause());
-                }
-            });
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        initHazelcastCluster();
     }
 
     @Override
@@ -65,12 +26,12 @@ public abstract class DepoymenetVerticle extends AbstractVerticle {
         });
     }
 
-    protected void deployVerticle(Vertx vertx) {
+    public void deployVerticle(Vertx vertx) {
         vertx.deployVerticle(getVerticleClass().getName(), getDeploymentOptions());
         System.out.println("Verticle " + getServiceName() + " deployed");
     }
 
-    protected void createServiceDiscovery(Vertx vertx) {
+    public void createServiceDiscovery(Vertx vertx) {
         discovery = ServiceDiscovery.create(vertx);
         record = MessageSource.createRecord(getServiceName(), getEventBusAddress());
         discovery.publish(record, ar -> {

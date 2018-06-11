@@ -26,5 +26,7 @@ public class QuoteVerticle extends AbstractVerticle {
         System.out.println("Quote verticle started");
     }
 
-
+    public Map<String, JsonObject> getQuotes() {
+        return quotes;
+    }
 }
