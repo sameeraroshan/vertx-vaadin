@@ -17,6 +17,7 @@
 
     <properties>
         <!-- Main verticle -->
+        <vertx.launcher>com.example.demo.ServiceLauncher</vertx.launcher>
         <vertx.verticle>com.example.demo.MarketDataDeploymentVerticle</vertx.verticle>
         <vertx.cluster.name>vertx-cluster</vertx.cluster.name>
     </properties>
@@ -46,7 +47,7 @@
                           <transformers>
                               <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                   <manifestEntries>
-                                      <Main-Class>io.vertx.core.Launcher</Main-Class>
+                                      <Main-Class>${vertx.launcher}</Main-Class>
                                       <Main-Verticle>${vertx.verticle}</Main-Verticle>
                                   </manifestEntries>
                               </transformer>

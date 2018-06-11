@@ -1,18 +1,20 @@
-package com.example.demo;
+package com.exmple.demo.services;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Launcher;
-import io.vertx.core.json.JsonObject;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.example.demo.DepoymenetVerticle;
+import com.example.demo.Endpoints;
+import com.example.demo.ServiceLauncher;
 
 public class QuoteDeplymentVerticle extends DepoymenetVerticle {
 
     public static void main(final String[] args) {
+        deploy();
+    }
+
+    public static void deploy() {
         ServiceLauncher.executeCommand("run", QuoteDeplymentVerticle.class.getName());
     }
+
+
     @Override
     public String getServiceName() {
         return "Quote service";

@@ -63,7 +63,9 @@ public class MarketDataVerticle extends AbstractVerticle {
      */
     private void send() {
         JsonObject data = toJson();
-        vertx.eventBus().publish(Endpoints.MARKET_DATA,data);
+        vertx.eventBus().send(Endpoints.MARKET_DATA,data, reply->{
+            System.out.println(reply.succeeded());
+        });
         System.out.println("data sent to event bud:" + data);
     }
 

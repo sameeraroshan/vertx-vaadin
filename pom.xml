@@ -12,7 +12,7 @@
 
   <properties>
     <java.version>1.8</java.version>
-    <vertx.version>3.5.2</vertx.version>
+    <vertx.version>3.5.1</vertx.version>
     <source.dir>src/main/java</source.dir>
     <vertx.cluster.name>none</vertx.cluster.name>
     <workshop.solution>false</workshop.solution>
@@ -23,6 +23,7 @@
     <module>quote-service</module>
     <module>market-data</module>
     <module>common</module>
+    <module>vaadin</module>
   </modules>
 
   <profiles>

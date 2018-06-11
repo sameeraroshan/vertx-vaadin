@@ -1,10 +1,12 @@
-package com.example.demo;
+package com.exmple.demo.services;
 
+import com.example.demo.Endpoints;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class QuoteVerticle extends AbstractVerticle {
@@ -18,13 +20,14 @@ public class QuoteVerticle extends AbstractVerticle {
             quotes.put(quote.getString("name"), quote);
             System.out.println("Quote received : " + quote);
         });
-
+        
         consumer.completionHandler(complete -> {
             System.out.println("Quote verticle registred to " + Endpoints.MARKET_DATA);
         });
 
         System.out.println("Quote verticle started");
     }
+
 
 
 }
