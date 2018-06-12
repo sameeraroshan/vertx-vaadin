@@ -13,12 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.eample.demo.vaadin;
+package com.eample.demo;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.eample.demo.vaadin.ExampleTemplate.ExampleModel;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 /**
@@ -26,13 +25,12 @@ import com.vaadin.flow.templatemodel.TemplateModel;
  */
 @Tag("example-template")
 @HtmlImport("src/example-template.html")
-public class ExampleTemplate extends PolymerTemplate<ExampleModel> {
+public class ExampleTemplate extends PolymerTemplate<ExampleTemplate.ExampleModel> {
 
     /**
      * Template model which defines the single "value" property.
      */
     public interface ExampleModel extends TemplateModel {
-
         void setValue(String value);
     }
 

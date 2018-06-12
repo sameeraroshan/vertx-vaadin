@@ -32,7 +32,7 @@ public interface HazelcastCluster {
             if (res.succeeded()) {
                 Vertx vertx = res.result();
                 System.out.println("We now have a clustered event bus: " + vertx.eventBus());
-                deployVerticle(vertx);
+                onclustredVerticle(vertx);
                 createServiceDiscovery(vertx);
             } else {
                 System.out.println("Failed: " + res.cause());
@@ -42,6 +42,6 @@ public interface HazelcastCluster {
 
     void createServiceDiscovery(Vertx vertx);
 
-    void deployVerticle(Vertx vertx);
+    void onclustredVerticle(Vertx vertx);
 
 }

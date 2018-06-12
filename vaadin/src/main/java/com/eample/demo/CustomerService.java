@@ -1,4 +1,4 @@
-package com.eample.demo.vaadin;
+package com.eample.demo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,14 +23,14 @@ public class CustomerService {
 	private static CustomerService instance;
 	private static final Logger LOGGER = Logger.getLogger(CustomerService.class.getName());
 
-	private final HashMap<Long, Customer> contacts = new HashMap<>();
+	private final HashMap<Long, Stock> contacts = new HashMap<>();
 	private long nextId = 0;
 
 	private CustomerService() {
 	}
 
 	/**
-	 * @return a reference to an example facade for Customer objects.
+	 * @return a reference to an example facade for Stock objects.
 	 */
 	public static CustomerService getInstance() {
 		if (instance == null) {
@@ -41,23 +41,23 @@ public class CustomerService {
 	}
 
 	/**
-	 * @return all available Customer objects.
+	 * @return all available Stock objects.
 	 */
-	public synchronized List<Customer> findAll() {
+	public synchronized List<Stock> findAll() {
 		return findAll(null);
 	}
 
 	/**
-	 * Finds all Customer's that match given filter.
+	 * Finds all Stock's that match given filter.
 	 *
 	 * @param stringFilter
 	 *            filter that returned objects should match or null/empty string
 	 *            if all objects should be returned.
-	 * @return list a Customer objects
+	 * @return list a Stock objects
 	 */
-	public synchronized List<Customer> findAll(String stringFilter) {
-		ArrayList<Customer> arrayList = new ArrayList<>();
-		for (Customer contact : contacts.values()) {
+	public synchronized List<Stock> findAll(String stringFilter) {
+		ArrayList<Stock> arrayList = new ArrayList<>();
+		for (Stock contact : contacts.values()) {
 			try {
 				boolean passesFilter = (stringFilter == null || stringFilter.isEmpty())
 						|| contact.toString().toLowerCase().contains(stringFilter.toLowerCase());
@@ -68,10 +68,10 @@ public class CustomerService {
 				Logger.getLogger(CustomerService.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
-		Collections.sort(arrayList, new Comparator<Customer>() {
+		Collections.sort(arrayList, new Comparator<Stock>() {
 
 			@Override
-			public int compare(Customer o1, Customer o2) {
+			public int compare(Stock o1, Stock o2) {
 				return (int) (o2.getId() - o1.getId());
 			}
 		});
@@ -79,7 +79,7 @@ public class CustomerService {
 	}
 
 	/**
-	 * Finds all Customer's that match given filter and limits the resultset.
+	 * Finds all Stock's that match given filter and limits the resultset.
 	 *
 	 * @param stringFilter
 	 *            filter that returned objects should match or null/empty string
@@ -88,11 +88,11 @@ public class CustomerService {
 	 *            the index of first result
 	 * @param maxresults
 	 *            maximum result count
-	 * @return list a Customer objects
+	 * @return list a Stock objects
 	 */
-	public synchronized List<Customer> findAll(String stringFilter, int start, int maxresults) {
-		ArrayList<Customer> arrayList = new ArrayList<>();
-		for (Customer contact : contacts.values()) {
+	public synchronized List<Stock> findAll(String stringFilter, int start, int maxresults) {
+		ArrayList<Stock> arrayList = new ArrayList<>();
+		for (Stock contact : contacts.values()) {
 			try {
 				boolean passesFilter = (stringFilter == null || stringFilter.isEmpty())
 						|| contact.toString().toLowerCase().contains(stringFilter.toLowerCase());
@@ -103,10 +103,10 @@ public class CustomerService {
 				Logger.getLogger(CustomerService.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
-		Collections.sort(arrayList, new Comparator<Customer>() {
+		Collections.sort(arrayList, new Comparator<Stock>() {
 
 			@Override
-			public int compare(Customer o1, Customer o2) {
+			public int compare(Stock o1, Stock o2) {
 				return (int) (o2.getId() - o1.getId());
 			}
 		});
@@ -128,29 +128,29 @@ public class CustomerService {
 	 * Deletes a customer from a system
 	 *
 	 * @param value
-	 *            the Customer to be deleted
+	 *            the Stock to be deleted
 	 */
-	public synchronized void delete(Customer value) {
+	public synchronized void delete(Stock value) {
 		contacts.remove(value.getId());
 	}
 
 	/**
 	 * Persists or updates customer in the system. Also assigns an identifier
-	 * for new Customer instances.
+	 * for new Stock instances.
 	 *
 	 * @param entry
 	 */
-	public synchronized void save(Customer entry) {
+	public synchronized void save(Stock entry) {
 		if (entry == null) {
 			LOGGER.log(Level.SEVERE,
-					"Customer is null. Are you sure you have connected your form to the application as described in tutorial chapter 7?");
+					"Stock is null. Are you sure you have connected your form to the application as described in tutorial chapter 7?");
 			return;
 		}
 		if (entry.getId() == null) {
 			entry.setId(nextId++);
 		}
 		try {
-			entry = (Customer) entry.clone();
+			entry = (Stock) entry.clone();
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
@@ -172,10 +172,10 @@ public class CustomerService {
 			Random r = new Random(0);
 			for (String name : names) {
 				String[] split = name.split(" ");
-				Customer c = new Customer();
-				c.setFirstName(split[0]);
-				c.setLastName(split[1]);
-				c.setStatus(CustomerStatus.values()[r.nextInt(CustomerStatus.values().length)]);
+				Stock c = new Stock();
+				c.setExchange(split[0]);
+				c.setSymbol(split[1]);
+				//c.setStatus(CustomerStatus.values()[r.nextInt(CustomerStatus.values().length)]);
 				save(c);
 			}
 		}

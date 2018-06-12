@@ -26,7 +26,7 @@ public abstract class DepoymenetVerticle extends AbstractVerticle implements Haz
         });
     }
 
-    public void deployVerticle(Vertx vertx) {
+    public void onclustredVerticle(Vertx vertx) {
         vertx.deployVerticle(getVerticleClass().getName(), getDeploymentOptions());
         System.out.println("Verticle " + getServiceName() + " deployed");
     }

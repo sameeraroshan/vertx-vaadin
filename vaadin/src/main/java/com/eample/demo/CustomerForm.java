@@ -1,4 +1,4 @@
-package com.eample.demo.vaadin;
+package com.eample.demo;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -16,10 +16,10 @@ public class CustomerForm extends FormLayout {
     private Button delete = new Button("Delete");
 
     private CustomerService service = CustomerService.getInstance();
-    private Customer customer;
+    private Stock stock;
     private MainView view;
 
-    private Binder<Customer> binder = new Binder<>(Customer.class);
+    private Binder<Stock> binder = new Binder<>(Stock.class);
 
     public CustomerForm(MainView view) {
         this.view = view;
@@ -37,13 +37,13 @@ public class CustomerForm extends FormLayout {
         save.addClickListener(e -> this.save());
         delete.addClickListener(e -> this.delete());
 
-        setCustomer(null);
+        setStock(null);
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-        binder.setBean(customer);
-        boolean enabled = customer != null;
+    public void setStock(Stock stock) {
+        this.stock = stock;
+        binder.setBean(stock);
+        boolean enabled = stock != null;
         save.setEnabled(enabled);
         delete.setEnabled(enabled);
         if (enabled) {
@@ -52,14 +52,12 @@ public class CustomerForm extends FormLayout {
     }
 
     private void delete() {
-        service.delete(customer);
-        view.updateList();
-        setCustomer(null);
+        service.delete(stock);
+         setStock(null);
     }
 
     private void save() {
-        service.save(customer);
-        view.updateList();
-        setCustomer(null);
+        service.save(stock);
+        setStock(null);
     }
 }

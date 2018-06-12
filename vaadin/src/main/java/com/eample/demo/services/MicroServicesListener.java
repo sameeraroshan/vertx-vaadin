@@ -1,4 +1,4 @@
-package com.eample.demo.vaadin.services;
+package com.eample.demo.services;
 
 import com.example.demo.Endpoints;
 import com.example.demo.HazelcastCluster;
@@ -15,13 +15,17 @@ public class MicroServicesListener implements HazelcastCluster {
     private static final MicroServicesListener listener = new MicroServicesListener();
     private static final HashMap<String, ArrayList<Handler<Message>>> handlers = new HashMap();
 
+    private MicroServicesListener(){
+        initHazelcastCluster();
+    }
+
     @Override
     public void createServiceDiscovery(Vertx vertx) {
         //not implemented
     }
 
     @Override
-    public void deployVerticle(Vertx vertx) {
+    public void onclustredVerticle(Vertx vertx) {
         vertx.eventBus().consumer(Endpoints.MARKET_DATA, message -> {
             handlers.get(Endpoints.MARKET_DATA).forEach(m -> m.handle(message));
             JsonObject body = (JsonObject) message.body();
