@@ -24,6 +24,8 @@ public abstract class DepoymenetVerticle extends AbstractVerticle implements Haz
                 System.out.println("unblushing service success " + getServiceName());
             }
         });
+
+        discovery.close();
     }
 
     public void onclustredVerticle(Vertx vertx) {
@@ -33,7 +35,7 @@ public abstract class DepoymenetVerticle extends AbstractVerticle implements Haz
 
     public void createServiceDiscovery(Vertx vertx) {
         discovery = ServiceDiscovery.create(vertx);
-        record = MessageSource.createRecord(getServiceName(), getEventBusAddress());
+        Record record = MessageSource.createRecord(getServiceName(), getEventBusAddress());
         discovery.publish(record, ar -> {
             if (ar.succeeded()) {
                 // publication succeeded

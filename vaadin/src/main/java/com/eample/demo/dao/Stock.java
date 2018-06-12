@@ -1,4 +1,4 @@
-package com.eample.demo;
+package com.eample.demo.dao;
 
 import java.io.Serializable;
 

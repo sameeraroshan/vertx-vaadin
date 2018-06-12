@@ -41,7 +41,7 @@ public class MarketDataVerticle extends AbstractVerticle {
      * @param config the configuration
      */
     void init(JsonObject config) {
-        period = config.getLong("period", 3000L);
+        period = config.getLong("period", 1000L);
         variation = config.getInteger("variation", 100);
         name = config.getString("name");
         Objects.requireNonNull(name);
@@ -64,7 +64,7 @@ public class MarketDataVerticle extends AbstractVerticle {
     private void send() {
         JsonObject data = toJson();
         vertx.eventBus().send(Endpoints.MARKET_DATA,data, reply->{
-            System.out.println(reply.succeeded());
+
         });
         System.out.println("data sent to event bud:" + data);
     }

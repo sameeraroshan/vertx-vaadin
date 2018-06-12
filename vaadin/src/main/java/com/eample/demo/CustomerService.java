@@ -1,5 +1,7 @@
 package com.eample.demo;
 
+import com.eample.demo.dao.Stock;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

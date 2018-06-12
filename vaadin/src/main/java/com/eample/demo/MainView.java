@@ -15,11 +15,11 @@
  */
 package com.eample.demo;
 
+import com.eample.demo.dao.Metrics;
+import com.eample.demo.dao.Stock;
 import com.eample.demo.services.DataService;
-import com.eample.demo.services.MicroServicesListener;
 import com.example.demo.Endpoints;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.charts.Chart;
@@ -47,72 +47,124 @@ import java.util.Map;
 @HtmlImport("styles/shared-styles.html")
 @Route("")
 @Push(PushMode.AUTOMATIC)
-public class MainView extends VerticalLayout implements RouterLayout, Handler<Stock> {
+public class MainView extends VerticalLayout implements RouterLayout {
+
+    //ui data model
+    Map<String, List<Stock>> chartStockMap = new HashMap<>();
+    Map<String, ListDataProvider<Stock>> dataProviderMap = new HashMap<>();
+
+    Map<String, Metrics> metricsMap = new HashMap<>();
+    Map<String, Stock> stockMap = new HashMap<>();
+
+    //ui
     UI ui;
-
-    Map<String,List<Stock>> chartStockMap = new HashMap<>();
-    Map<String,ListDataProvider<Stock>> dataProviderMap = new HashMap<>();
-
     Chart chart;
-    Grid<Stock> grid;
+    Grid<Stock> stocksGrid;
+    Grid<Metrics> metricsGrid;
+    //data handlers
+    Handler<Stock> stockHandler;
+    Handler<Metrics> metricsHandler;
+
 
     public MainView() {
         ui = UI.getCurrent();
         chart = createChart();
-        grid = createGrid();
+        stocksGrid = createStocsGrid();
+        metricsGrid = createMetricsGrid();
 
-        HorizontalLayout main = new HorizontalLayout(grid, chart);
+        HorizontalLayout hUpper = new HorizontalLayout(stocksGrid, chart);
+        hUpper.setSizeFull();
+        hUpper.setMargin(true);
+        hUpper.setAlignItems(Alignment.START);
+        HorizontalLayout hLower = new HorizontalLayout(metricsGrid);
+        hLower.setSizeFull();
+        hLower.setMargin(true);
+        hLower.setAlignItems(Alignment.CENTER);
+        VerticalLayout main = new VerticalLayout(hUpper,hLower);
         main.setAlignItems(Alignment.START);
         main.setSizeFull();
+        main.setMargin(false);
         add(main);
-        setHeight("100vh");
+        setSizeFull();
+        //setHeight("100vh");
     }
 
+    protected void createHandlers() {
+        stockHandler = stock -> {
+            ui.access(() -> {
+                //for table
+                stockMap.put(stock.getName(), stock);
+                stocksGrid.getDataProvider().refreshAll();
+                //for chart
+                List<Stock> list = chartStockMap.get(stock.getSymbol());
+                if (list == null) {
+                    list = new ArrayList();
+                    chartStockMap.put(stock.getSymbol(), list);
+                    ListDataProvider<Stock> dataProvider = DataProvider.ofCollection(list);
+                    dataProviderMap.put(stock.getSymbol(), dataProvider);
+                    createStockChartDS(stock.getSymbol(), dataProvider);
+                }
+                list.add(stock);
+                dataProviderMap.get(stock.getSymbol()).refreshAll();
+            });
+        };
 
-    @Override
-    public void handle(Stock stock) {
-        ui.access(() -> {
-            List<Stock> list = chartStockMap.get(stock.getSymbol());
-            if(list == null){
-                list = new ArrayList();
-                chartStockMap.put(stock.getSymbol(),list);
-                ListDataProvider<Stock> dataProvider = DataProvider.ofCollection(list);
-                dataProviderMap.put(stock.getSymbol(),dataProvider);
-                createStockDS(stock.getSymbol(),dataProvider);
-            }
-            list.add(stock);
-            dataProviderMap.get(stock.getSymbol()).refreshAll();
-        });
+        metricsHandler = metric -> {
+            ui.access(() -> {
+                System.out.println("metric data:" + metric);
+                metricsMap.put(metric.getName(), metric);
+                metricsGrid.getDataProvider().refreshAll();
+            });
+        };
     }
 
-    private void createStockDS(String name, DataProvider dataProvider) {
-        DataProviderSeries<Stock> ds = new DataProviderSeries<>(dataProvider,Stock::getAsk);
+    private ListDataProvider<Stock> createStockskDS(String name) {
+        ListDataProvider<Stock> ds = DataProvider.ofCollection(stockMap.values());
+        return ds;
+    }
+
+    private ListDataProvider<Metrics> createMetricskDS(String name) {
+        ListDataProvider<Metrics> ds = DataProvider.ofCollection(metricsMap.values());
+        return ds;
+    }
+
+    private void createStockChartDS(String name, DataProvider dataProvider) {
+        DataProviderSeries ds = new DataProviderSeries<Stock>(dataProvider, Stock::getAsk);
         ds.setName(name);
         chart.getConfiguration().addSeries(ds);
     }
 
-
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        DataService.getService().subscribe(Endpoints.MARKET_DATA, this);
+        createHandlers();
+        DataService.getService().subscribe(Endpoints.MARKET_DATA, stockHandler);
+        DataService.getService().subscribe(Endpoints.METRICS_SERICE, metricsHandler);
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
-        DataService.getService().unSubscribe(Endpoints.MARKET_DATA, this);
+        DataService.getService().unSubscribe(Endpoints.MARKET_DATA, stockHandler);
+        DataService.getService().unSubscribe(Endpoints.METRICS_SERICE, metricsHandler);
     }
 
-    private Grid createGrid() {
-        Grid<Stock> grid = new Grid<>();
-        grid.addColumn(Stock::getExchange).setHeader("Exchange");
-        grid.addColumn(Stock::getSymbol).setHeader("Symbol");
-        grid.addColumn(Stock::getBid).setHeader("Bid");
-        grid.addColumn(Stock::getAsk).setHeader("Ask");
-        grid.addColumn(Stock::getVolume).setHeader("Volume");
-        grid.addColumn(Stock::getBid).setHeader("Status");
-        grid.addColumn(Stock::getBid).setHeader("Status");
-       // grid.setDataProvider(dataProvider);
-        return grid;
+    private Grid createStocsGrid() {
+        stocksGrid = new Grid();
+        stocksGrid.addColumn(Stock::getExchange).setHeader("Exchange");
+        stocksGrid.addColumn(Stock::getSymbol).setHeader("Symbol");
+        stocksGrid.addColumn(Stock::getBid).setHeader("Bid");
+        stocksGrid.addColumn(Stock::getAsk).setHeader("Ask");
+        stocksGrid.addColumn(Stock::getVolume).setHeader("Volume");
+        stocksGrid.addColumn(Stock::getBid).setHeader("Status");
+        stocksGrid.addColumn(Stock::getBid).setHeader("Status");
+        stocksGrid.setDataProvider(createStockskDS(""));
+        return stocksGrid;
+    }
+
+    private Grid<Metrics> createMetricsGrid() {
+        metricsGrid = new Grid();
+        metricsGrid.addColumn(Metrics::getName).setHeader("Name");
+        metricsGrid.setDataProvider(createMetricskDS(""));
+        return metricsGrid;
     }
 
     public Chart createChart() {
