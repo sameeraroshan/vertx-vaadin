@@ -10,11 +10,14 @@ import io.vertx.ext.dropwizard.MetricsService;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
+import io.vertx.servicediscovery.Record;
+import io.vertx.servicediscovery.ServiceDiscovery;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MicroServicesListener extends DepoymenetVerticle implements ServiceDiscoveryManager {
+public class MicroServicesListener extends DepoymenetVerticle {
 
     private static final MicroServicesListener listener = new MicroServicesListener();
     private static final HashMap<String, ArrayList<Handler>> handlers = new HashMap();
@@ -44,17 +47,7 @@ public class MicroServicesListener extends DepoymenetVerticle implements Service
             }
         });
 
-        vertx.setPeriodic(5000, event -> {
-            List<Handler> handlers = this.handlers.get(Endpoints.RECORD_SERVICE);
-            if (handlers != null) {
-                getDiscovery().getRecords(record1 -> true, true, result -> {
-                    System.out.println("Record" + getRecord());
-                    if (!result.failed()) {
-                        handlers.forEach(m -> m.handle(result.result()));
-                    }
-                });
-            }
-        });
+
 
         MetricsService service = MetricsService.create(vertx);
         HealthCheckHandler hc = HealthCheckHandler.create(vertx);
@@ -66,6 +59,8 @@ public class MicroServicesListener extends DepoymenetVerticle implements Service
         router.get("/dropwizard-metrics").handler(hc);
         vertx.createHttpServer().requestHandler(router::accept).listen(8090);
     }
+
+
 
     public void subscribe(String address, Handler handler) {
         if (this.handlers.get(address) == null) {
@@ -84,6 +79,7 @@ public class MicroServicesListener extends DepoymenetVerticle implements Service
         return listener;
     }
 
+
     @Override
     public String getServiceName() {
         return "Vaadin-UI";
@@ -92,5 +88,21 @@ public class MicroServicesListener extends DepoymenetVerticle implements Service
     @Override
     public String getEventBusAddress() {
         return Endpoints.UI_DATA_SERVICE;
+    }
+
+    @Override
+    public void onServiceDiscovery(Vertx vertx,ServiceDiscovery discovery, Record record) {
+        super.onServiceDiscovery(vertx,discovery,record);
+        vertx.setPeriodic(5000, event -> {
+            List<Handler> handlers = this.handlers.get(Endpoints.RECORD_SERVICE);
+            if (handlers != null) {
+                discovery.getRecords(record1 -> true, true, result -> {
+                    System.out.println("Record" + record);
+                    if (!result.failed()) {
+                        handlers.forEach(m -> m.handle(result.result()));
+                    }
+                });
+            }
+        });
     }
 }

@@ -10,7 +10,7 @@ import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 
-public interface ClusterDeploymentManager {
+public interface ClusterDeploymentManager extends ServiceDiscoveryManager {
 
     default void initHazelcastCluster() {
         setDefaultProperties();
@@ -40,6 +40,7 @@ public interface ClusterDeploymentManager {
                 Vertx vertx = res.result();
                 System.out.println("We now have a clustered event bus: " + vertx.eventBus());
                 onclustredVerticle(vertx);
+                createServiceDiscovery(vertx);
                 sendMetrics(vertx);
             } else {
                 System.out.println("Failed: " + res.cause());

@@ -6,19 +6,19 @@ import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
 
 public interface ServiceDiscoveryManager {
-    default void unPublish(){
-        getDiscovery().unpublish(getRecord().getRegistration(), result -> {
+    default void unPublish(ServiceDiscovery discovery, Record record){
+        discovery.unpublish(record.getRegistration(), result -> {
             if (result.failed()) {
-                System.out.println("unblushing service failed " + getRecord().getName());
+                System.out.println("unblushing service failed " + record.getName());
             } else {
-                System.out.println("unblushing service success " + getRecord().getName());
+                System.out.println("unblushing service success " + record.getName());
             }
         });
 
-        getDiscovery().close();
+        discovery.close();
     }
 
-    default ServiceRecordTuple<Record,ServiceDiscovery>  createServiceDiscovery(Vertx vertx) {
+    default void createServiceDiscovery(Vertx vertx) {
 
         ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
         Record record = EventBusService.createRecord(getServiceName(), getEventBusAddress(),this.getClass());
@@ -33,32 +33,12 @@ public interface ServiceDiscoveryManager {
                         + " on address " + getEventBusAddress());
             }
         });
-
-        ServiceRecordTuple tuple = new ServiceRecordTuple() {
-            @Override
-            public Object getRecoed() {
-                return record;
-            }
-
-            @Override
-            public Object getDiscovery() {
-                return discovery;
-            }
-        };
-
-        return tuple;
+        onServiceDiscovery(vertx,discovery,record);
     }
-
-    Record getRecord();
-
-    ServiceDiscovery getDiscovery();
 
     String getServiceName();
 
     String getEventBusAddress();
 
-    interface ServiceRecordTuple<T,V>{
-        T getRecoed();
-        V getDiscovery();
-    }
+    void onServiceDiscovery(Vertx vertx,ServiceDiscovery discovery,Record record);
 }
