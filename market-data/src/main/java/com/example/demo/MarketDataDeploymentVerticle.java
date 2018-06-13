@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import com.example.demo.constant.Endpoints;
+import com.example.demo.verticle.DepoymenetVerticle;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -34,6 +36,16 @@ public class MarketDataDeploymentVerticle extends DepoymenetVerticle {
     private ConfigRetrieverOptions getConfigurationOptions() {
         JsonObject path = new JsonObject().put("path", "config/config.json");
         return new ConfigRetrieverOptions().addStore(new ConfigStoreOptions().setType("file").setConfig(path));
+    }
+
+    @Override
+    public String getServiceName() {
+        return "Market Data service";
+    }
+
+    @Override
+    public String getEventBusAddress() {
+        return Endpoints.MARKET_DATA;
     }
 
     @Override

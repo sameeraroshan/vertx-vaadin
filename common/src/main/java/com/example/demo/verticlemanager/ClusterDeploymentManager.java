@@ -1,17 +1,13 @@
-package com.example.demo;
+package com.example.demo.verticlemanager;
 
-import io.vertx.circuitbreaker.CircuitBreaker;
-import io.vertx.circuitbreaker.CircuitBreakerOptions;
-import io.vertx.circuitbreaker.HystrixMetricHandler;
+import com.example.demo.constant.Endpoints;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
 import io.vertx.ext.dropwizard.MetricsService;
-import io.vertx.ext.web.Router;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
-import io.vertx.servicediscovery.types.MessageSource;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 
 public interface ClusterDeploymentManager {
@@ -57,12 +53,6 @@ public interface ClusterDeploymentManager {
             JsonObject metrics = service.getMetricsSnapshot(vertx);
             vertx.eventBus().publish(Endpoints.METRICS_SERICE, metrics);
         });
-      /*  // Register the metric handler
-        Router router = Router.router(vertx);
-        router.get("/hystrix-metrics").handler(HystrixMetricHandler.create(vertx));
-        vertx.createHttpServer()
-                .requestHandler(router::accept)
-                .listen(8090);*/
     }
 
     void onclustredVerticle(Vertx vertx);

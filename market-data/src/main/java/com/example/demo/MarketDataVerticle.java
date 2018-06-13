@@ -1,8 +1,9 @@
 package com.example.demo;
 
+import com.example.demo.constant.Endpoints;
+import com.example.demo.verticle.BaseVerticle;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -22,6 +23,7 @@ public class MarketDataVerticle extends BaseVerticle {
     private double value;
 
     private final Random random = new Random();
+    CircuitBreaker breaker;
 
     /**
      * Method called when the verticle is deployed.
@@ -29,6 +31,7 @@ public class MarketDataVerticle extends BaseVerticle {
     @Override
     public void start() {
         // Retrieve the configuration, and initialize the verticle.
+        super.start();
         JsonObject config = config();
         init(config);
 
@@ -40,21 +43,12 @@ public class MarketDataVerticle extends BaseVerticle {
     }
 
     @Override
-    void createCircuitBreaker(Vertx vertx) {
-       /* CircuitBreaker breaker = CircuitBreaker.create("my-circuit-breaker", vertx,
+   public void createCircuitBreaker(Vertx vertx) {
+        breaker = CircuitBreaker.create("vertx.circuit-breaker", vertx,
                 new CircuitBreakerOptions()
                         .setMaxFailures(5)
-                        .setTimeout(2000)
                         .setFallbackOnFailure(true)
         );
-
-        breaker.<String>execute(future -> {
-            vertx.eventBus().consumer(getEventBusAddress(), event -> {
-
-            });
-        }).setHandler(ar -> {
-            // Do something with the result
-        });*/
     }
 
     /**
@@ -84,10 +78,22 @@ public class MarketDataVerticle extends BaseVerticle {
      */
     private void send() {
         JsonObject data = toJson();
-        vertx.eventBus().send(Endpoints.MARKET_DATA,data, reply->{
 
+        vertx.eventBus().send(Endpoints.MARKET_DATA,data, reply->{
+            if(reply.failed()){
+                System.out.println("data send failed to event bus:" + data);
+                //future.fail("data send failed to event bus:" + data);
+            }else {
+                System.out.println("data sent to event bus:" + data);
+                //future.complete("data sent to event bus:" + data);
+            }
         });
-        System.out.println("data sent to event bud:" + data);
+
+        breaker.<String>execute(future -> {
+
+        }).setHandler(ar -> {
+            // Do something with the result
+        });
     }
 
     /**
@@ -143,13 +149,5 @@ public class MarketDataVerticle extends BaseVerticle {
 
     }
 
-    @Override
-    public String getServiceName() {
-        return "Market Data service";
-    }
 
-    @Override
-    public String getEventBusAddress() {
-        return Endpoints.MARKET_DATA;
-    }
 }

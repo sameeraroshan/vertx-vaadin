@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.verticlemanager;
 
 import io.vertx.core.Vertx;
 import io.vertx.servicediscovery.Record;

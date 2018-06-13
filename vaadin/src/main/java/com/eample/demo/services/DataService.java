@@ -1,7 +1,7 @@
 package com.eample.demo.services;
 
 import com.eample.demo.dao.Stock;
-import com.example.demo.Endpoints;
+import com.example.demo.constant.Endpoints;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;

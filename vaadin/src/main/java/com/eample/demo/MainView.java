@@ -18,7 +18,7 @@ package com.eample.demo;
 import com.eample.demo.dao.Metrics;
 import com.eample.demo.dao.Stock;
 import com.eample.demo.services.DataService;
-import com.example.demo.Endpoints;
+import com.example.demo.constant.Endpoints;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
@@ -86,7 +86,7 @@ public class MainView extends VerticalLayout implements RouterLayout {
         hLower.setSizeFull();
         hLower.setMargin(true);
         hLower.setAlignItems(Alignment.CENTER);
-        VerticalLayout main = new VerticalLayout(hUpper,hLower);
+        VerticalLayout main = new VerticalLayout(hUpper, hLower);
         main.setAlignItems(Alignment.START);
         main.setSizeFull();
         main.setMargin(false);
@@ -97,38 +97,45 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
     protected void createHandlers() {
         stockHandler = stock -> {
-            ui.access(() -> {
-                //for table
-                stockMap.put(stock.getName(), stock);
-                stocksGrid.getDataProvider().refreshAll();
-                //for chart
-                List<Stock> list = chartStockMap.get(stock.getSymbol());
-                if (list == null) {
-                    list = new ArrayList();
-                    chartStockMap.put(stock.getSymbol(), list);
-                    ListDataProvider<Stock> dataProvider = DataProvider.ofCollection(list);
-                    dataProviderMap.put(stock.getSymbol(), dataProvider);
-                    createStockChartDS(stock.getSymbol(), dataProvider);
-                }
-                list.add(stock);
-                dataProviderMap.get(stock.getSymbol()).refreshAll();
-            });
+            if (ui != null && ui.getSession() != null) {
+                ui.access(() -> {
+                    //for table
+                    stockMap.put(stock.getName(), stock);
+                    stocksGrid.getDataProvider().refreshAll();
+                    //for chart
+                    List<Stock> list = chartStockMap.get(stock.getSymbol());
+                    if (list == null) {
+                        list = new ArrayList();
+                        chartStockMap.put(stock.getSymbol(), list);
+                        ListDataProvider<Stock> dataProvider = DataProvider.ofCollection(list);
+                        dataProviderMap.put(stock.getSymbol(), dataProvider);
+                        createStockChartDS(stock.getSymbol(), dataProvider);
+                    }
+                    list.add(stock);
+                    dataProviderMap.get(stock.getSymbol()).refreshAll();
+                });
+            }
         };
 
         metricsHandler = metric -> {
-            ui.access(() -> {
-                System.out.println("metric data:" + metric);
-                metricsMap.put(metric.getName(), metric);
-                metricsGrid.getDataProvider().refreshAll();
-            });
+            if (ui != null && ui.getSession() != null) {
+                ui.access(() -> {
+                    System.out.println("metric data:" + metric);
+                    metricsMap.put(metric.getName(), metric);
+                    metricsGrid.getDataProvider().refreshAll();
+                });
+            }
         };
 
-        recordHandler = record->{
-            ui.access(() -> {
-                System.out.println("record data:" + record);
-                recordMap.put(record.getRegistration(), record);
-                recordGrid.getDataProvider().refreshAll();
-            });
+        recordHandler = record -> {
+            if (ui != null && ui.getSession() != null) {
+                ui.access(() -> {
+                    System.out.println("record data:" + record);
+                    recordMap.put(record.getRegistration(), record);
+                    recordGrid.getDataProvider().refreshAll();
+                });
+            }
+
         };
     }
 
@@ -141,6 +148,7 @@ public class MainView extends VerticalLayout implements RouterLayout {
         ListDataProvider<Metrics> ds = DataProvider.ofCollection(metricsMap.values());
         return ds;
     }
+
     private ListDataProvider<Record> createRecordsDS(String name) {
         ListDataProvider<Record> ds = DataProvider.ofCollection(recordMap.values());
         return ds;
@@ -182,12 +190,12 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
     private Grid<Record> createRecordGrid() {
         recordGrid = new Grid();
-        recordGrid.addColumn(Record::getRegistration).setHeader("Registration");
-        recordGrid.addColumn(Record::getLocation).setHeader("Location");
-        recordGrid.addColumn(Record::getName).setHeader("Name");
-        recordGrid.addColumn(Record::getStatus).setHeader("Status");
-        recordGrid.addColumn(Record::getType).setHeader("Type");
-        recordGrid.addColumn(Record::getMetadata).setHeader("Meta");
+        recordGrid.addColumn(Record::getRegistration).setHeader("Registration").setResizable(true);
+        recordGrid.addColumn(Record::getLocation).setHeader("Location").setResizable(true);
+        recordGrid.addColumn(Record::getName).setHeader("Name").setResizable(true);
+        recordGrid.addColumn(Record::getStatus).setHeader("Status").setResizable(true);
+        recordGrid.addColumn(Record::getType).setHeader("Type").setResizable(true);
+        recordGrid.addColumn(Record::getMetadata).setHeader("Meta").setResizable(true);
         recordGrid.setDataProvider(createRecordsDS(""));
         return recordGrid;
     }

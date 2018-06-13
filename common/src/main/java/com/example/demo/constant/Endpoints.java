@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.constant;
 
 public class Endpoints {
     public static final String MARKET_DATA="demo.market.data.end.point";
