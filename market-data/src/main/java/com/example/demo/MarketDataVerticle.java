@@ -144,12 +144,12 @@ public class MarketDataVerticle extends BaseVerticle {
     }
 
     @Override
-    protected String getServiceName() {
+    public String getServiceName() {
         return "Market Data service";
     }
 
     @Override
-    protected String getEventBusAddress() {
+    public String getEventBusAddress() {
         return Endpoints.MARKET_DATA;
     }
 }
