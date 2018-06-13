@@ -35,6 +35,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.shared.communication.PushMode;
 import io.vertx.core.Handler;
+import io.vertx.servicediscovery.Record;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,15 +56,19 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
     Map<String, Metrics> metricsMap = new HashMap<>();
     Map<String, Stock> stockMap = new HashMap<>();
+    Map<String, Record> recordMap = new HashMap<>();
+
 
     //ui
     UI ui;
     Chart chart;
     Grid<Stock> stocksGrid;
     Grid<Metrics> metricsGrid;
+    Grid<Record> recordGrid;
     //data handlers
     Handler<Stock> stockHandler;
     Handler<Metrics> metricsHandler;
+    Handler<Record> recordHandler;
 
 
     public MainView() {
@@ -71,12 +76,13 @@ public class MainView extends VerticalLayout implements RouterLayout {
         chart = createChart();
         stocksGrid = createStocsGrid();
         metricsGrid = createMetricsGrid();
+        recordGrid = createRecordGrid();
 
         HorizontalLayout hUpper = new HorizontalLayout(stocksGrid, chart);
         hUpper.setSizeFull();
         hUpper.setMargin(true);
         hUpper.setAlignItems(Alignment.START);
-        HorizontalLayout hLower = new HorizontalLayout(metricsGrid);
+        HorizontalLayout hLower = new HorizontalLayout(recordGrid);
         hLower.setSizeFull();
         hLower.setMargin(true);
         hLower.setAlignItems(Alignment.CENTER);
@@ -116,6 +122,14 @@ public class MainView extends VerticalLayout implements RouterLayout {
                 metricsGrid.getDataProvider().refreshAll();
             });
         };
+
+        recordHandler = record->{
+            ui.access(() -> {
+                System.out.println("record data:" + record);
+                recordMap.put(record.getRegistration(), record);
+                recordGrid.getDataProvider().refreshAll();
+            });
+        };
     }
 
     private ListDataProvider<Stock> createStockskDS(String name) {
@@ -125,6 +139,10 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
     private ListDataProvider<Metrics> createMetricskDS(String name) {
         ListDataProvider<Metrics> ds = DataProvider.ofCollection(metricsMap.values());
+        return ds;
+    }
+    private ListDataProvider<Record> createRecordsDS(String name) {
+        ListDataProvider<Record> ds = DataProvider.ofCollection(recordMap.values());
         return ds;
     }
 
@@ -137,14 +155,16 @@ public class MainView extends VerticalLayout implements RouterLayout {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         createHandlers();
-        DataService.getService().subscribe(Endpoints.MARKET_DATA, stockHandler);
+        DataService.getService().subscribe(Endpoints.QUOTE_SERICE, stockHandler);
         DataService.getService().subscribe(Endpoints.METRICS_SERICE, metricsHandler);
+        DataService.getService().subscribe(Endpoints.RECORD_SERVICE, recordHandler);
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
-        DataService.getService().unSubscribe(Endpoints.MARKET_DATA, stockHandler);
+        DataService.getService().unSubscribe(Endpoints.QUOTE_SERICE, stockHandler);
         DataService.getService().unSubscribe(Endpoints.METRICS_SERICE, metricsHandler);
+        DataService.getService().unSubscribe(Endpoints.RECORD_SERVICE, recordHandler);
     }
 
     private Grid createStocsGrid() {
@@ -158,6 +178,18 @@ public class MainView extends VerticalLayout implements RouterLayout {
         stocksGrid.addColumn(Stock::getBid).setHeader("Status");
         stocksGrid.setDataProvider(createStockskDS(""));
         return stocksGrid;
+    }
+
+    private Grid<Record> createRecordGrid() {
+        recordGrid = new Grid();
+        recordGrid.addColumn(Record::getRegistration).setHeader("Registration");
+        recordGrid.addColumn(Record::getLocation).setHeader("Location");
+        recordGrid.addColumn(Record::getName).setHeader("Name");
+        recordGrid.addColumn(Record::getStatus).setHeader("Status");
+        recordGrid.addColumn(Record::getType).setHeader("Type");
+        recordGrid.addColumn(Record::getMetadata).setHeader("Meta");
+        recordGrid.setDataProvider(createRecordsDS(""));
+        return recordGrid;
     }
 
     private Grid<Metrics> createMetricsGrid() {

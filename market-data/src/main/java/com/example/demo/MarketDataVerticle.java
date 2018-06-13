@@ -1,12 +1,15 @@
 package com.example.demo;
 
+import io.vertx.circuitbreaker.CircuitBreaker;
+import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 import java.util.Objects;
 import java.util.Random;
 
-public class MarketDataVerticle extends AbstractVerticle {
+public class MarketDataVerticle extends BaseVerticle {
     private String name;
     private int variation;
     private long period;
@@ -34,6 +37,24 @@ public class MarketDataVerticle extends AbstractVerticle {
             compute();
             send();
         });
+    }
+
+    @Override
+    void createCircuitBreaker(Vertx vertx) {
+       /* CircuitBreaker breaker = CircuitBreaker.create("my-circuit-breaker", vertx,
+                new CircuitBreakerOptions()
+                        .setMaxFailures(5)
+                        .setTimeout(2000)
+                        .setFallbackOnFailure(true)
+        );
+
+        breaker.<String>execute(future -> {
+            vertx.eventBus().consumer(getEventBusAddress(), event -> {
+
+            });
+        }).setHandler(ar -> {
+            // Do something with the result
+        });*/
     }
 
     /**
@@ -120,5 +141,15 @@ public class MarketDataVerticle extends AbstractVerticle {
                 .put("open", price)
                 .put("shares", share);
 
+    }
+
+    @Override
+    protected String getServiceName() {
+        return "Market Data service";
+    }
+
+    @Override
+    protected String getEventBusAddress() {
+        return Endpoints.MARKET_DATA;
     }
 }

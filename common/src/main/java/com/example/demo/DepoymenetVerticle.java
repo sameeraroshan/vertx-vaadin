@@ -1,13 +1,9 @@
 package com.example.demo;
 
 import io.vertx.core.*;
-import io.vertx.servicediscovery.Record;
-import io.vertx.servicediscovery.ServiceDiscovery;
-import io.vertx.servicediscovery.types.MessageSource;
 
-public abstract class DepoymenetVerticle extends AbstractVerticle implements HazelcastCluster {
-    protected Record record;
-    protected ServiceDiscovery discovery;
+public abstract class DepoymenetVerticle extends AbstractVerticle implements ClusterDeploymentManager {
+
 
     @Override
     public final void start() {
@@ -15,47 +11,23 @@ public abstract class DepoymenetVerticle extends AbstractVerticle implements Haz
         initHazelcastCluster();
     }
 
-    @Override
-    public void stop() throws Exception {
-        discovery.unpublish(record.getRegistration(), result -> {
-            if (result.failed()) {
-                System.out.println("unblushing service failed " + getServiceName());
-            } else {
-                System.out.println("unblushing service success " + getServiceName());
-            }
-        });
-
-        discovery.close();
-    }
 
     public void onclustredVerticle(Vertx vertx) {
-        vertx.deployVerticle(getVerticleClass().getName(), getDeploymentOptions());
-        System.out.println("Verticle " + getServiceName() + " deployed");
-    }
-
-    public void createServiceDiscovery(Vertx vertx) {
-        discovery = ServiceDiscovery.create(vertx);
-        Record record = MessageSource.createRecord(getServiceName(), getEventBusAddress());
-        discovery.publish(record, ar -> {
-            if (ar.succeeded()) {
-                // publication succeeded
-                System.out.println("Service record published successfully " + getServiceName()
-                        + " on address " + getEventBusAddress());
-            } else {
-                // publication failed
-                System.out.println("Service record publication failed " + getServiceName()
-                        + " on address " + getEventBusAddress());
+        this.vertx = vertx;
+        vertx.deployVerticle(getVerticleClass().getName(), getDeploymentOptions(),event -> {
+            if(event.failed()){
+                System.out.println("failed deployment of verticle"+getVerticleClass().getName());
+            }else {
+                System.out.println("Verticle " + getVerticleClass().getName() + " deployed");
             }
         });
+
     }
-
-    protected abstract String getServiceName();
-
-    protected abstract String getEventBusAddress();
-
-    protected abstract Class getVerticleClass();
 
     protected DeploymentOptions getDeploymentOptions() {
         return new DeploymentOptions();
     }
+    protected abstract Class getVerticleClass();
+
+
 }

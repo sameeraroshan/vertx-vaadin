@@ -40,7 +40,8 @@ public class DataService {
             broadcastMarketData(stock);
         };
         recordHandler = records-> records.forEach(this::broadcastRecordData);
-        MicroServicesListener.getListener().subscribe(Endpoints.MARKET_DATA, messageHandler);
+        MicroServicesListener.getListener().subscribe(Endpoints.QUOTE_SERICE, messageHandler);
+        MicroServicesListener.getListener().subscribe(Endpoints.RECORD_SERVICE, recordHandler);
     }
 
     static {
@@ -57,7 +58,8 @@ public class DataService {
     }
 
     public void destroy() {
-        MicroServicesListener.getListener().unSubscribe(Endpoints.MARKET_DATA, messageHandler);
+        MicroServicesListener.getListener().unSubscribe(Endpoints.QUOTE_SERICE, messageHandler);
+        MicroServicesListener.getListener().unSubscribe(Endpoints.RECORD_SERVICE, recordHandler);
     }
 
     public void subscribe(String address, Handler handler) {
@@ -70,7 +72,7 @@ public class DataService {
 
     protected void sendInitialData(String address, Handler handler) {
         switch (address) {
-            case Endpoints.MARKET_DATA:
+            case Endpoints.QUOTE_SERICE:
                 stockList.forEach(handler::handle);
                 break;
             case Endpoints.METRICS_SERICE:
@@ -87,7 +89,7 @@ public class DataService {
     }
 
     public void broadcastMarketData(Stock stock) {
-        handlers.get(Endpoints.MARKET_DATA).forEach(stockHandler -> stockHandler.handle(stock));
+        handlers.get(Endpoints.QUOTE_SERICE).forEach(stockHandler -> stockHandler.handle(stock));
     }
 
     public void broadcastRecordData(Record record) {

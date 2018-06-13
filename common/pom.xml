@@ -76,7 +76,10 @@
     </build>
 
     <dependencies>
-
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-health-check</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-config</artifactId>

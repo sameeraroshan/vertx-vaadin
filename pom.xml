@@ -49,6 +49,11 @@
   </dependencyManagement>
 
   <dependencies>
+      <dependency>
+          <groupId>io.vertx</groupId>
+          <artifactId>vertx-health-check</artifactId>
+        <version>${vertx.version}</version>
+      </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-dropwizard-metrics</artifactId>

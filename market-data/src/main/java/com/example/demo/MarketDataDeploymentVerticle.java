@@ -37,16 +37,6 @@ public class MarketDataDeploymentVerticle extends DepoymenetVerticle {
     }
 
     @Override
-    protected String getServiceName() {
-        return "Market Data service";
-    }
-
-    @Override
-    protected String getEventBusAddress() {
-        return Endpoints.MARKET_DATA;
-    }
-
-    @Override
     protected Class getVerticleClass() {
         return MarketDataVerticle.class;
     }
