@@ -44,7 +44,7 @@ public class MarketDataVerticle extends BaseVerticle {
 
     @Override
    public void createCircuitBreaker(Vertx vertx) {
-        breaker = CircuitBreaker.create("vertx.circuit-breaker", vertx,
+        breaker = CircuitBreaker.create(getEventBusAddress()+".histrix", vertx,
                 new CircuitBreakerOptions()
                         .setMaxFailures(5)
                         .setFallbackOnFailure(true)
@@ -78,9 +78,6 @@ public class MarketDataVerticle extends BaseVerticle {
      */
     private void send() {
         JsonObject data = toJson();
-
-
-
         breaker.<String>execute(future -> {
             vertx.eventBus().send(getEventBusAddress(),data, reply->{
                 if(reply.failed()){
