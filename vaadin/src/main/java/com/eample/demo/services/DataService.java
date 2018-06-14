@@ -21,7 +21,7 @@ public class DataService {
     HashMap<String, ArrayList<Handler>> handlers = new HashMap();
 
     Handler<Message> messageHandler;
-    Handler<List<Record>> recordHandler;
+    Handler<Record> recordHandler;
 
     private DataService() {
 
@@ -39,7 +39,7 @@ public class DataService {
             System.out.println("updated stock:" + jsonObject.encodePrettily());
             broadcastMarketData(stock);
         };
-        recordHandler = records-> records.forEach(this::broadcastRecordData);
+        recordHandler = record-> this.broadcastRecordData(record);
         MicroServicesListener.getListener().subscribe(Endpoints.QUOTE_SERICE, messageHandler);
         MicroServicesListener.getListener().subscribe(Endpoints.RECORD_SERVICE, recordHandler);
     }

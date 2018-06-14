@@ -6,7 +6,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.healthchecks.Status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,10 +38,15 @@ public class QuoteVerticle extends BaseVerticle {
      */
     private void broadcast(JsonObject quote) {
         DeliveryOptions deliveryOptions = new DeliveryOptions();
-        vertx.eventBus().publish(Endpoints.QUOTE_SERICE,quote, deliveryOptions);
+        vertx.eventBus().publish(getEventBusAddress(),quote, deliveryOptions);
     }
 
     public Map<String, JsonObject> getQuotes() {
         return quotes;
+    }
+
+    @Override
+    public String getEventBusAddress() {
+        return Endpoints.QUOTE_SERICE;
     }
 }

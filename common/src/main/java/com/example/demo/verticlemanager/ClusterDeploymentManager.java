@@ -6,8 +6,6 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
 import io.vertx.ext.dropwizard.MetricsService;
-import io.vertx.ext.healthchecks.HealthCheckHandler;
-import io.vertx.ext.healthchecks.Status;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 
 public interface ClusterDeploymentManager extends ServiceDiscoveryManager {
@@ -41,14 +39,15 @@ public interface ClusterDeploymentManager extends ServiceDiscoveryManager {
                 System.out.println("We now have a clustered event bus: " + vertx.eventBus());
                 onclustredVerticle(vertx);
                 createServiceDiscovery(vertx);
-                sendMetrics(vertx);
+                createMetrics(vertx);
             } else {
                 System.out.println("Failed: " + res.cause());
             }
         });
     }
 
-    default void sendMetrics(Vertx vertx) {
+
+    default void createMetrics(Vertx vertx) {
         MetricsService service = MetricsService.create(vertx);
         vertx.setPeriodic(2000, t -> {
             JsonObject metrics = service.getMetricsSnapshot(vertx);

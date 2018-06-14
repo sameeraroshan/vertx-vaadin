@@ -79,18 +79,18 @@ public class MarketDataVerticle extends BaseVerticle {
     private void send() {
         JsonObject data = toJson();
 
-        vertx.eventBus().send(Endpoints.MARKET_DATA,data, reply->{
-            if(reply.failed()){
-                System.out.println("data send failed to event bus:" + data);
-                //future.fail("data send failed to event bus:" + data);
-            }else {
-                System.out.println("data sent to event bus:" + data);
-                //future.complete("data sent to event bus:" + data);
-            }
-        });
+
 
         breaker.<String>execute(future -> {
-
+            vertx.eventBus().send(getEventBusAddress(),data, reply->{
+                if(reply.failed()){
+                    System.out.println("data send failed to event bus:" + data);
+                    future.fail("data send failed to event bus:" + data);
+                }else {
+                    System.out.println("data sent to event bus:" + data);
+                    future.complete("data sent to event bus:" + data);
+                }
+            });
         }).setHandler(ar -> {
             // Do something with the result
         });
@@ -150,4 +150,8 @@ public class MarketDataVerticle extends BaseVerticle {
     }
 
 
+    @Override
+    public String getEventBusAddress() {
+        return Endpoints.MARKET_DATA;
+    }
 }
