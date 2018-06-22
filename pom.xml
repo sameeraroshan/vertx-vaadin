@@ -24,6 +24,7 @@
     <module>market-data</module>
     <module>common</module>
     <module>vaadin</module>
+    <module>basics</module>
   </modules>
 
   <profiles>
