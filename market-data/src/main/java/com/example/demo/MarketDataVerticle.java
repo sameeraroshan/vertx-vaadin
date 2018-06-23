@@ -47,6 +47,7 @@ public class MarketDataVerticle extends BaseVerticle {
         breaker = CircuitBreaker.create(getEventBusAddress()+".histrix", vertx,
                 new CircuitBreakerOptions()
                         .setMaxFailures(5)
+                        .setMaxRetries(5)
                         .setFallbackOnFailure(true)
         );
     }
