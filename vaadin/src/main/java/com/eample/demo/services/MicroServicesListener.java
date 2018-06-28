@@ -6,13 +6,18 @@ import com.example.demo.verticlemanager.HealthManager;
 import io.vertx.circuitbreaker.HystrixMetricHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.bridge.PermittedOptions;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.dropwizard.MetricsService;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
-import io.vertx.reactivex.core.eventbus.EventBus;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.ServiceReference;
@@ -27,7 +32,6 @@ public class MicroServicesListener extends DepoymenetVerticle implements HealthM
     private static final MicroServicesListener listener = new MicroServicesListener();
     private static final HashMap<String, ArrayList<Handler>> handlers = new HashMap();
     HealthChecks healthChecks;
-    Router router;
     Map<String, Record> recordMap = new HashMap<>();
 
     private MicroServicesListener() {
@@ -43,20 +47,7 @@ public class MicroServicesListener extends DepoymenetVerticle implements HealthM
     public void onclustredVerticle(Vertx vertx) {
         consumeQuoteService(vertx);
         consumeMetricService(vertx);
-        createMetrixMonitoring(vertx);
         createHealthEndpoint(vertx);
-    }
-
-    private void createMetrixMonitoring(Vertx vertx) {
-        MetricsService service = MetricsService.create(vertx);
-        HealthCheckHandler hc = HealthCheckHandler.create(vertx);
-        hc.register("metrics-handler", future -> future.complete(Status.OK(service.getMetricsSnapshot(vertx))));
-
-        // Register the metric handler
-        Router router = Router.router(vertx);
-        router.get("/hystrix_metrics").handler(HystrixMetricHandler.create(vertx));
-        router.get("/dropwizard-metrics").handler(hc);
-        vertx.createHttpServer().requestHandler(router::accept).listen(8090);
     }
 
     private void consumeQuoteService(Vertx vertx) {
@@ -76,7 +67,6 @@ public class MicroServicesListener extends DepoymenetVerticle implements HealthM
             }
         });
     }
-
 
     public void subscribe(String address, Handler handler) {
         if (this.handlers.get(address) == null) {

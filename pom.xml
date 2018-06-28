@@ -25,6 +25,7 @@
     <module>common</module>
     <module>vaadin</module>
     <module>basics</module>
+    <module>apigateway</module>
   </modules>
 
   <profiles>
@@ -119,6 +120,22 @@
       <artifactId>vertx-circuit-breaker</artifactId>
       <version>${vertx.version}</version>
     </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-sockjs-service-proxy</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-service-proxy</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <version>${vertx.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -178,6 +195,9 @@
           <configuration>
             <source>1.8</source>
             <target>1.8</target>
+            <annotationProcessors>
+              <annotationProcessor>io.vertx.serviceproxy.ServiceProxyProcessor</annotationProcessor>
+            </annotationProcessors>
           </configuration>
         </plugin>
         <plugin>
